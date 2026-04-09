@@ -125,6 +125,14 @@ export type WPUser = {
 
 // ---------- internal ----------
 
+// Warm-instance stale cache. Vercel keeps module state alive across
+// invocations on the same Lambda container, so this Map survives between
+// requests (typically minutes to hours). When a fetch fails we serve the
+// last known-good payload instead of returning empty — the user sees
+// slightly stale content rather than a blank page.
+const STALE_CACHE = new Map<string, { data: unknown; at: number }>();
+const STALE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24h
+
 async function wpFetch<T>(
   path: string,
   init?: RequestInit,
@@ -138,15 +146,28 @@ async function wpFetch<T>(
     });
     if (!res.ok) {
       console.error(`[wpFetch] ${res.status} ${res.statusText} ${url}`);
-      return null;
+      return serveStale<T>(url);
     }
-    return (await res.json()) as T;
+    const data = (await res.json()) as T;
+    STALE_CACHE.set(url, { data, at: Date.now() });
+    return data;
   } catch (err) {
     console.error(
       `[wpFetch] threw ${err instanceof Error ? err.message : err} ${url}`,
     );
+    return serveStale<T>(url);
+  }
+}
+
+function serveStale<T>(url: string): T | null {
+  const hit = STALE_CACHE.get(url);
+  if (!hit) return null;
+  if (Date.now() - hit.at > STALE_MAX_AGE_MS) {
+    STALE_CACHE.delete(url);
     return null;
   }
+  console.warn(`[wpFetch] serving stale ${url}`);
+  return hit.data as T;
 }
 
 // ---------- posts ----------
@@ -213,18 +234,32 @@ export async function getPostsWithTotal(
   if (params.search) sp.set("search", params.search);
   if (params.embed !== false) sp.set("_embed", "1");
   const url = `${WP_BASE}/posts?${sp.toString()}`;
+  const stale = () =>
+    serveStale<{ posts: WPPost[]; totalPages: number; total: number }>(url) ?? {
+      posts: [],
+      totalPages: 0,
+      total: 0,
+    };
   try {
     const res = await fetchWithRetry(url, {
       next: { revalidate: REVALIDATE },
       headers: WP_HEADERS,
     });
-    if (!res.ok) return { posts: [], totalPages: 0, total: 0 };
+    if (!res.ok) {
+      console.error(`[wpFetch] ${res.status} ${res.statusText} ${url}`);
+      return stale();
+    }
     const posts = (await res.json()) as WPPost[];
     const totalPages = Number(res.headers.get("x-wp-totalpages") || "0");
     const total = Number(res.headers.get("x-wp-total") || "0");
-    return { posts, totalPages, total };
-  } catch {
-    return { posts: [], totalPages: 0, total: 0 };
+    const payload = { posts, totalPages, total };
+    STALE_CACHE.set(url, { data: payload, at: Date.now() });
+    return payload;
+  } catch (err) {
+    console.error(
+      `[wpFetch] threw ${err instanceof Error ? err.message : err} ${url}`,
+    );
+    return stale();
   }
 }
 
