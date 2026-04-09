@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mango: #eba121;
+  --color-mango-dark: #c97f00;
+  --color-ink: #121212;
+  --color-cream: #fff8ea;
+  --color-hotpink: #ff2d87;
+  --color-acid: #7cf3a7;
+  --color-electric: #4c6fff;
+
+  --font-display: "greycliff-thai-cf", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "greycliff-thai-cf", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* -------- base -------- */
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-image:
+    radial-gradient(
+      circle at 10% -10%,
+      rgba(255, 45, 135, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(124, 243, 167, 0.22),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 50% 110%,
+      rgba(235, 161, 33, 0.18),
+      transparent 50%
+    );
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--color-mango);
+  color: #000;
+}
+
+/* -------- utilities -------- */
+
+/* Chunky hard-shadow "sticker" card — the signature look of the site. */
+.card-chunk {
+  border: 2px solid #121212;
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 0 #121212;
+  background: #fff;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+.card-chunk:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 0 #121212;
+}
+
+.btn-chunk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  border: 2px solid #121212;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+  box-shadow: 4px 4px 0 0 #121212;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+.btn-chunk:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 0 #121212;
+}
+.btn-chunk:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 #121212;
+}
+
+.tape {
+  position: relative;
+}
+.tape::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 68px;
+  height: 18px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(235, 161, 33, 0.8) 0 6px,
+    rgba(235, 161, 33, 0.55) 6px 12px
+  );
+  border: 1.5px solid rgba(0, 0, 0, 0.35);
+  transform: translateX(-50%) rotate(-3deg);
+  pointer-events: none;
+}
+
+/* Dashed outline glyph style for playful headings */
+.display-outline {
+  -webkit-text-stroke: 2px #121212;
+  color: transparent;
+}
+
+/* Marquee / ticker */
+@keyframes mz-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: mz-marquee 36s linear infinite;
+  will-change: transform;
+}
+.marquee-wrap:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes mz-wiggle {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(1deg);
+  }
+}
+.wiggle {
+  animation: mz-wiggle 4s ease-in-out infinite;
+}
+
+@keyframes mz-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin-slow {
+  animation: mz-spin-slow 14s linear infinite;
+}
+
+/* Article body styling — large readable type, playful accents. */
+.prose-mz {
+  font-size: 1.06rem;
+  line-height: 1.85;
+  color: #1a1a1a;
+}
+.prose-mz p {
+  margin: 1rem 0;
+}
+.prose-mz h1,
+.prose-mz h2,
+.prose-mz h3,
+.prose-mz h4 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  margin: 2rem 0 0.75rem;
+  line-height: 1.2;
+}
+.prose-mz h2 {
+  font-size: 1.75rem;
+  position: relative;
+  padding-left: 0.85rem;
+}
+.prose-mz h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 6px;
+  background: var(--color-mango);
+  border-radius: 999px;
+}
+.prose-mz h3 {
+  font-size: 1.35rem;
+}
+.prose-mz a {
+  color: #c97f00;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.prose-mz a:hover {
+  background: #ffe7a8;
+}
+.prose-mz img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.25rem auto;
+  border-radius: 16px;
+  border: 2px solid #121212;
+  box-shadow: 6px 6px 0 0 #121212;
+}
+.prose-mz iframe {
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border: 2px solid #121212;
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 0 #121212;
+  margin: 1.5rem 0;
+}
+.prose-mz blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 6px solid var(--color-hotpink);
+  background: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  font-style: italic;
+}
+.prose-mz ul,
+.prose-mz ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+.prose-mz ul {
+  list-style: disc;
+}
+.prose-mz ol {
+  list-style: decimal;
+}
+.prose-mz li {
+  margin: 0.35rem 0;
+}
+.prose-mz code {
+  background: #f1e9d2;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.92em;
+}
+.prose-mz pre {
+  background: #121212;
+  color: #f8f5ef;
+  padding: 1rem;
+  border-radius: 14px;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+}
+
+/* Hide scrollbars on horizontal rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
