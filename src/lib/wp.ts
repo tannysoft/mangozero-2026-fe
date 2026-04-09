@@ -6,12 +6,44 @@ const WP_BASE = `${WP_ORIGIN}/wp-json/wp/v2`;
 const REVALIDATE = 300; // 5 min
 
 // iThemes / Cloudflare sometimes block empty UAs, keep a browser UA.
+// `Connection: close` prevents undici on Vercel from reusing stale keep-alive
+// sockets that the origin (or Cloudflare) has already dropped — that reuse is
+// the root cause of the intermittent `fetch failed` we see in Vercel logs.
 const WP_HEADERS = {
   Accept: "application/json",
   "User-Agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+  Connection: "close",
 } as const;
+
+// Retry wrapper for transient network errors (ECONNRESET, socket hang up,
+// fetch failed) that happen on cross-region Vercel → TH origin calls.
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  retries = 2,
+): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const ac = new AbortController();
+      const timeout = setTimeout(() => ac.abort(), 15_000);
+      try {
+        return await fetch(url, { ...init, signal: ac.signal });
+      } finally {
+        clearTimeout(timeout);
+      }
+    } catch (err) {
+      lastErr = err;
+      if (attempt < retries) {
+        // 250ms, 750ms — small backoff, keep total under ~1s
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1) ** 2));
+      }
+    }
+  }
+  throw lastErr;
+}
 
 // ---------- types ----------
 
@@ -99,7 +131,7 @@ async function wpFetch<T>(
 ): Promise<T | null> {
   const url = `${WP_BASE}${path}`;
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithRetry(url, {
       ...init,
       next: { revalidate: REVALIDATE },
       headers: { ...WP_HEADERS, ...(init?.headers || {}) },
@@ -182,7 +214,7 @@ export async function getPostsWithTotal(
   if (params.embed !== false) sp.set("_embed", "1");
   const url = `${WP_BASE}/posts?${sp.toString()}`;
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithRetry(url, {
       next: { revalidate: REVALIDATE },
       headers: WP_HEADERS,
     });
