@@ -19,6 +19,38 @@ import { colorFor, findNavById } from "@/lib/categories";
 
 export const revalidate = 300;
 
+// Remove the first <img> (or <figure> wrapping it) from the article HTML
+// if its src matches the featured image — avoids showing the same image twice.
+function dedupeLeadingImage(html: string, featuredSrc?: string): string {
+  if (!featuredSrc || !html) return html;
+  // Extract the filename from the featured image URL (ignore size suffixes like -1024x683)
+  const featuredFile = featuredSrc.replace(/^.*\//, "").replace(/-\d+x\d+(?=\.\w+$)/, "");
+
+  // Match the first <img> in the content
+  const imgMatch = html.match(/<img\s[^>]*>/i);
+  if (!imgMatch) return html;
+
+  const firstImgTag = imgMatch[0];
+  const srcMatch = firstImgTag.match(/src=["']([^"']+)["']/i);
+  if (!srcMatch) return html;
+
+  const contentFile = srcMatch[1].replace(/^.*\//, "").replace(/-\d+x\d+(?=\.\w+$)/, "");
+
+  if (contentFile !== featuredFile) return html;
+
+  // Check if the <img> is inside a <figure> — if so, remove the entire <figure>
+  const figureRegex = new RegExp(
+    `<figure[^>]*>\\s*${firstImgTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?</figure>`,
+    "i",
+  );
+  if (figureRegex.test(html)) {
+    return html.replace(figureRegex, "");
+  }
+
+  // Otherwise just remove the <img> tag itself
+  return html.replace(firstImgTag, "");
+}
+
 type Params = { slug: string[] };
 
 async function resolvePost(slug: string[]) {
@@ -134,7 +166,7 @@ export default async function ArticlePage({
 
       <div
         className="prose-mz"
-        dangerouslySetInnerHTML={{ __html: post.content.rendered }}
+        dangerouslySetInnerHTML={{ __html: dedupeLeadingImage(post.content.rendered, img?.src) }}
       />
 
       {/* tags */}
