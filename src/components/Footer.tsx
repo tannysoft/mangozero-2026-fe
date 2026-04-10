@@ -4,14 +4,14 @@ import { NAV_CATEGORIES } from "@/lib/categories";
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t-4 border-black bg-[#121212] text-[#fff8ea]">
+    <footer className="mt-20 border-t border-[#e0e0e0] bg-[#121212] text-[#f5f5f5]">
       <div className="mx-auto grid max-w-[1280px] gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr]">
         <div>
           <Logo className="h-10 w-auto" monoColor="#eba121" />
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">
             สำนักข่าวไม่เป็นทางการสำหรับ Gen Y & Gen Z
-            เสิร์ฟข่าวไอดอล ดนตรี ซีรีส์ หนัง ไลฟ์สไตล์ เทรนด์โซเชียล
-            แบบไม่ต้องซีเรียส. สนุกได้ทุกวัน แซ่บได้ทุกคลิก 🥭
+            — เสิร์ฟข่าวไอดอล ดนตรี ซีรีส์ หนัง ไลฟ์สไตล์ เทรนด์โซเชียล
+            สนุกได้ทุกวัน
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -27,7 +27,7 @@ export function Footer() {
                 href={s.href}
                 rel="noopener"
                 target="_blank"
-                className="rounded-full border-2 border-[#eba121] bg-transparent px-3 py-1 text-xs font-bold text-[#eba121] hover:bg-[#eba121] hover:text-black"
+                className="rounded-lg border border-white/20 bg-transparent px-3 py-1.5 text-xs font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               >
                 {s.label}
               </a>
@@ -36,17 +36,17 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-black text-[#eba121] uppercase tracking-wider">
-            หมวดหมู่สุดมันส์
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#eba121]">
+            หมวดหมู่
           </h3>
           <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
             {NAV_CATEGORIES.map((c) => (
               <li key={c.id}>
                 <Link
                   href={`/category/${c.slug}`}
-                  className="inline-flex items-center gap-1 text-white/80 hover:text-[#ffd60a]"
+                  className="text-white/60 transition-colors hover:text-white"
                 >
-                  <span>{c.emoji}</span> {c.name}
+                  {c.name}
                 </Link>
               </li>
             ))}
@@ -54,24 +54,24 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-black text-[#eba121] uppercase tracking-wider">
-            เมนูลัด
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#eba121]">
+            เมนู
           </h3>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <Link href="/" className="hover:text-[#ffd60a]">
+              <Link href="/" className="text-white/60 hover:text-white">
                 หน้าแรก
               </Link>
             </li>
             <li>
-              <Link href="/search" className="hover:text-[#ffd60a]">
+              <Link href="/search" className="text-white/60 hover:text-white">
                 ค้นหา
               </Link>
             </li>
             <li>
               <a
                 href="https://www.mangozero.com/about/"
-                className="hover:text-[#ffd60a]"
+                className="text-white/60 hover:text-white"
               >
                 เกี่ยวกับเรา
               </a>
@@ -79,7 +79,7 @@ export function Footer() {
             <li>
               <a
                 href="https://www.mangozero.com/contact/"
-                className="hover:text-[#ffd60a]"
+                className="text-white/60 hover:text-white"
               >
                 ติดต่อโฆษณา
               </a>
@@ -89,9 +89,9 @@ export function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-white/50 sm:flex-row sm:px-6">
-          <div>© {new Date().getFullYear()} Mango Zero — ไม่มีอะไร นอกจากเรื่องมันส์ๆ</div>
-          <div>Built with Next.js + Tailwind • Data by WordPress REST</div>
+        <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-white/35 sm:flex-row sm:px-6">
+          <div>&copy; {new Date().getFullYear()} Mango Zero</div>
+          <div>Built with Next.js + Tailwind &middot; Data by WordPress REST</div>
         </div>
       </div>
     </footer>

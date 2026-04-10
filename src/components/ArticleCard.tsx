@@ -15,11 +15,9 @@ type Variant = "default" | "compact" | "wide" | "tall" | "mini";
 export function ArticleCard({
   post,
   variant = "default",
-  rotate,
 }: {
   post: WPPost;
   variant?: Variant;
-  /** Optional rotation in degrees for that "sticker on a wall" vibe. */
   rotate?: number;
 }) {
   const img = featuredImage(post);
@@ -32,16 +30,12 @@ export function ArticleCard({
     ? { bg: nav.color, text: nav.text }
     : primary
       ? colorFor(primary.id)
-      : { bg: "bg-[#ffd60a]", text: "text-black" };
-
-  const rotateStyle =
-    rotate !== undefined ? { transform: `rotate(${rotate}deg)` } : undefined;
+      : { bg: "bg-[#d4a017]", text: "text-white" };
 
   if (variant === "mini") {
     return (
       <Link
         href={href}
-        style={rotateStyle}
         className="card-chunk group block overflow-hidden"
       >
         <div className="flex gap-3 p-3">
@@ -52,7 +46,7 @@ export function ArticleCard({
               srcSet={img.srcSet}
               sizes="120px"
               alt={img.alt || title}
-              className="h-20 w-24 flex-shrink-0 rounded-lg border-2 border-black object-cover"
+              className="h-20 w-24 flex-shrink-0 rounded-lg object-cover"
               loading="lazy"
               decoding="async"
             />
@@ -60,7 +54,7 @@ export function ArticleCard({
           <div className="min-w-0 flex-1">
             {primary && (
               <span
-                className={`inline-block rounded-full border border-black ${tint.bg} ${tint.text} px-2 py-[1px] text-[10px] font-black uppercase`}
+                className={`inline-block rounded-md ${tint.bg} ${tint.text} px-2 py-[1px] text-[10px] font-bold uppercase`}
               >
                 {primary.name}
               </span>
@@ -78,7 +72,6 @@ export function ArticleCard({
     return (
       <Link
         href={href}
-        style={rotateStyle}
         className="card-chunk group flex flex-col overflow-hidden md:flex-row"
       >
         {img && (
@@ -103,20 +96,20 @@ export function ArticleCard({
               return (
                 <span
                   key={c.id}
-                  className={`rounded-full border-2 border-black ${col.bg} ${col.text} px-2 py-[2px] text-[10px] font-black uppercase shadow-[2px_2px_0_0_#121212]`}
+                  className={`rounded-md ${col.bg} ${col.text} px-2 py-[2px] text-[10px] font-bold uppercase`}
                 >
                   {c.name}
                 </span>
               );
             })}
           </div>
-          <h3 className="mt-3 text-2xl font-black leading-[1.3] group-hover:underline md:text-3xl md:leading-[1.25]">
+          <h3 className="mt-3 text-2xl font-extrabold leading-[1.3] group-hover:underline md:text-3xl md:leading-[1.25]">
             {title}
           </h3>
-          <p className="mt-2 line-clamp-2 text-sm text-black/65">
+          <p className="mt-2 line-clamp-2 text-sm text-black/55">
             {stripHtml(post.excerpt.rendered, 160)}
           </p>
-          <div className="mt-3 text-xs font-bold text-black/50">
+          <div className="mt-3 text-xs font-medium text-black/40">
             {formatThaiDate(post.date)}
           </div>
         </div>
@@ -128,7 +121,6 @@ export function ArticleCard({
     return (
       <Link
         href={href}
-        style={rotateStyle}
         className="card-chunk group flex h-full flex-col overflow-hidden"
       >
         {img && (
@@ -145,7 +137,7 @@ export function ArticleCard({
             />
             {primary && (
               <span
-                className={`absolute left-3 top-3 rounded-full border-2 border-black ${tint.bg} ${tint.text} px-3 py-1 text-[11px] font-black uppercase shadow-[2px_2px_0_0_#121212]`}
+                className={`absolute left-3 top-3 rounded-md ${tint.bg} ${tint.text} px-2.5 py-1 text-[11px] font-bold uppercase`}
               >
                 {primary.name}
               </span>
@@ -153,10 +145,10 @@ export function ArticleCard({
           </div>
         )}
         <div className="flex flex-1 flex-col p-4">
-          <h3 className="line-clamp-3 text-lg font-black leading-[1.45] group-hover:underline">
+          <h3 className="line-clamp-3 text-lg font-extrabold leading-[1.45] group-hover:underline">
             {title}
           </h3>
-          <div className="mt-auto pt-3 text-xs font-bold text-black/50">
+          <div className="mt-auto pt-3 text-xs font-medium text-black/40">
             {formatThaiDate(post.date)}
           </div>
         </div>
@@ -168,7 +160,6 @@ export function ArticleCard({
     return (
       <Link
         href={href}
-        style={rotateStyle}
         className="card-chunk group block h-full overflow-hidden"
       >
         {img && (
@@ -186,15 +177,15 @@ export function ArticleCard({
         <div className="p-4">
           {primary && (
             <span
-              className={`inline-block rounded-full border-2 border-black ${tint.bg} ${tint.text} px-2 py-[2px] text-[10px] font-black uppercase shadow-[2px_2px_0_0_#121212]`}
+              className={`inline-block rounded-md ${tint.bg} ${tint.text} px-2 py-[2px] text-[10px] font-bold uppercase`}
             >
               {primary.name}
             </span>
           )}
-          <h3 className="mt-2 line-clamp-2 text-base font-black leading-[1.45] group-hover:underline">
+          <h3 className="mt-2 line-clamp-2 text-base font-bold leading-[1.45] group-hover:underline">
             {title}
           </h3>
-          <div className="mt-2 text-xs font-bold text-black/50">
+          <div className="mt-2 text-xs font-medium text-black/40">
             {formatThaiDate(post.date)}
           </div>
         </div>
@@ -206,7 +197,6 @@ export function ArticleCard({
   return (
     <Link
       href={href}
-      style={rotateStyle}
       className="card-chunk group flex h-full flex-col overflow-hidden"
     >
       {img && (
@@ -223,7 +213,7 @@ export function ArticleCard({
           />
           {primary && (
             <span
-              className={`absolute left-3 top-3 rounded-full border-2 border-black ${tint.bg} ${tint.text} px-3 py-1 text-[11px] font-black uppercase shadow-[2px_2px_0_0_#121212]`}
+              className={`absolute left-3 top-3 rounded-md ${tint.bg} ${tint.text} px-2.5 py-1 text-[11px] font-bold uppercase`}
             >
               {primary.name}
             </span>
@@ -231,13 +221,13 @@ export function ArticleCard({
         </div>
       )}
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="line-clamp-3 text-lg font-black leading-[1.45] group-hover:underline">
+        <h3 className="line-clamp-3 text-lg font-extrabold leading-[1.45] group-hover:underline">
           {title}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-black/60">
+        <p className="mt-2 line-clamp-2 text-sm text-black/50">
           {stripHtml(post.excerpt.rendered, 140)}
         </p>
-        <div className="mt-auto pt-3 text-xs font-bold text-black/50">
+        <div className="mt-auto pt-3 text-xs font-medium text-black/40">
           {formatThaiDate(post.date)}
         </div>
       </div>

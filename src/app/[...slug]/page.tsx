@@ -22,9 +22,6 @@ export const revalidate = 300;
 type Params = { slug: string[] };
 
 async function resolvePost(slug: string[]) {
-  // mangozero.com articles are published at /{post-slug}/ — the first
-  // path segment is almost always the post slug. We fall back to the
-  // final segment if the user lands on a nested path.
   const candidate = slug[slug.length - 1] || slug[0];
   return getPostBySlug(candidate);
 }
@@ -72,7 +69,7 @@ export default async function ArticlePage({
     ? { bg: nav.color, text: nav.text }
     : primary
       ? colorFor(primary.id)
-      : { bg: "bg-[#ffd60a]", text: "text-black" };
+      : { bg: "bg-[#eba121]", text: "text-white" };
 
   const relatedRaw = primary
     ? await getPosts({ perPage: 5, categories: primary.id, exclude: [post.id] })
@@ -81,16 +78,16 @@ export default async function ArticlePage({
 
   return (
     <article className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
-      {/* breadcrumb / category */}
-      <div className="mb-5 flex flex-wrap items-center gap-2 text-xs font-bold text-black/60">
-        <Link href="/" className="underline hover:text-black">
+      {/* breadcrumb */}
+      <div className="mb-5 flex flex-wrap items-center gap-1.5 text-xs text-black/40">
+        <Link href="/" className="hover:text-black">
           หน้าแรก
         </Link>
-        <span>›</span>
+        <span>/</span>
         {primary && (
           <Link
             href={`/category/${nav?.slug ?? primary.slug}`}
-            className={`rounded-full border-2 border-black ${tint.bg} ${tint.text} px-2 py-[2px] text-[10px] uppercase shadow-[2px_2px_0_0_#121212]`}
+            className="font-medium text-[#eba121] hover:text-[#c97f00]"
           >
             {primary.name}
           </Link>
@@ -98,10 +95,10 @@ export default async function ArticlePage({
       </div>
 
       <header className="mb-6">
-        <h1 className="font-[var(--font-display)] text-3xl font-black leading-[1.35] sm:text-5xl sm:leading-[1.25]">
+        <h1 className="font-[var(--font-display)] text-3xl font-extrabold leading-[1.35] sm:text-5xl sm:leading-[1.25]">
           {title}
         </h1>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm font-bold text-black/60">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-black/50">
           {author && (
             <span className="inline-flex items-center gap-2">
               {author.avatar && (
@@ -109,13 +106,13 @@ export default async function ArticlePage({
                 <img
                   src={author.avatar}
                   alt={author.name}
-                  className="h-7 w-7 rounded-full border-2 border-black"
+                  className="h-7 w-7 rounded-full border border-[#e0e0e0]"
                 />
               )}
-              <span>โดย {author.name}</span>
+              <span className="font-medium">{author.name}</span>
             </span>
           )}
-          <span>·</span>
+          <span>&middot;</span>
           <time dateTime={post.date}>{formatThaiDate(post.date)}</time>
         </div>
       </header>
@@ -137,36 +134,30 @@ export default async function ArticlePage({
 
       <div
         className="prose-mz"
-        // WordPress returns fully-sanitized HTML; we pass it through as-is
-        // so Gutenberg blocks (images, embeds, lists) render identically
-        // to the live site.
         dangerouslySetInnerHTML={{ __html: post.content.rendered }}
       />
 
       {/* tags */}
       {tags.length > 0 && (
         <div className="mt-10 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-black uppercase text-black/50">
+          <span className="text-xs font-bold uppercase text-black/40">
             แท็ก:
           </span>
-          {tags.map((t) => {
-            const col = colorFor(t.id);
-            return (
-              <Link
-                key={t.id}
-                href={`/tag/${t.slug}`}
-                className={`${col.bg} ${col.text} rounded-full border-2 border-black px-3 py-1 text-xs font-black shadow-[2px_2px_0_0_#121212]`}
-              >
-                #{t.name}
-              </Link>
-            );
-          })}
+          {tags.map((t) => (
+            <Link
+              key={t.id}
+              href={`/tag/${t.slug}`}
+              className="rounded-lg bg-[#f0f0f0] px-3 py-1 text-xs font-medium text-black/60 transition-colors hover:bg-[#eba121] hover:text-white"
+            >
+              #{t.name}
+            </Link>
+          ))}
         </div>
       )}
 
       {/* share */}
-      <div className="mt-10 card-chunk flex flex-wrap items-center gap-3 p-5">
-        <span className="text-sm font-black uppercase">📣 แชร์ให้เพื่อนดู</span>
+      <div className="mt-10 card-chunk flex flex-wrap items-center gap-3 border-[#eba121]/30 bg-[#fffbf0] p-5">
+        <span className="text-sm font-bold uppercase text-[#eba121]">แชร์บทความ</span>
         <div className="flex flex-wrap gap-2">
           <a
             className="btn-chunk text-xs"
@@ -182,7 +173,7 @@ export default async function ArticlePage({
             rel="noopener"
             href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(post.link)}&text=${encodeURIComponent(title)}`}
           >
-            X / Twitter
+            X
           </a>
           <a
             className="btn-chunk text-xs"
@@ -206,18 +197,16 @@ export default async function ArticlePage({
       {related.length > 0 && (
         <section className="mt-16">
           <SectionHeading
-            emoji="👀"
             label="RELATED"
-            title="อ่านต่อกันเลย ห้ามพลาด"
-            color="bg-[#7cf3a7]"
+            title="บทความที่เกี่ยวข้อง"
+            color="bg-[#eba121]"
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((p, i) => (
+            {related.map((p) => (
               <ArticleCard
                 key={p.id}
                 post={p}
                 variant="compact"
-                rotate={i % 2 === 0 ? -0.4 : 0.4}
               />
             ))}
           </div>

@@ -31,16 +31,16 @@ export async function generateMetadata({
 async function resolveCategory(slug: string): Promise<{
   id: number;
   name: string;
-  emoji?: string;
   color: string;
+  text: string;
 } | null> {
   const nav = findNavBySlug(slug);
   if (nav) {
-    return { id: nav.id, name: nav.name, emoji: nav.emoji, color: nav.color };
+    return { id: nav.id, name: nav.name, color: nav.color, text: nav.text };
   }
   const cat: WPCategory | null = await getCategoryBySlug(slug);
   if (!cat) return null;
-  return { id: cat.id, name: cat.name, color: "bg-[#ffd60a]" };
+  return { id: cat.id, name: cat.name, color: "bg-[#121212]", text: "text-white" };
 }
 
 export default async function CategoryPage({
@@ -57,11 +57,6 @@ export default async function CategoryPage({
   const cat = await resolveCategory(slug);
   if (!cat) notFound();
 
-  // perPage chosen so the grid always fills evenly:
-  //   page 1 → 1 featured (wide) + 15 compact (3 cols × 5 rows)
-  //   page 2+ → 15 compact (3 cols × 5 rows), no featured
-  // Bumping this past 16 would need an extra filler card on p2+ to
-  // avoid a lonely last row.
   const perPage = page === 1 ? 16 : 15;
   const { posts, totalPages } = await getPostsWithTotal({
     categories: cat.id,
@@ -75,25 +70,19 @@ export default async function CategoryPage({
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-      {/* Category hero banner */}
-      <div
-        className={`card-chunk relative mb-10 overflow-hidden p-6 sm:p-10 ${cat.color}`}
-      >
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-white px-3 py-1 text-[11px] font-black uppercase shadow-[3px_3px_0_0_#121212]">
-            📂 หมวดหมู่
-          </div>
-          <h1 className="mt-3 font-[var(--font-display)] text-5xl font-black leading-[1.2] sm:text-7xl sm:leading-[1.15]">
-            {cat.emoji && <span className="mr-3">{cat.emoji}</span>}
-            {cat.name}
-          </h1>
-          <p className="mt-3 text-sm font-bold text-black/70">
-            รวมข่าว บทความ และเรื่องมันส์ๆ ทั้งหมดในหมวด {cat.name}
-          </p>
+      {/* Category header */}
+      <div className="mb-10">
+        <div
+          className={`inline-flex items-center rounded-md ${cat.color} ${cat.text} px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider`}
+        >
+          หมวดหมู่
         </div>
-        <div className="pointer-events-none absolute -right-10 -bottom-10 text-[220px] opacity-10">
-          🥭
-        </div>
+        <h1 className="mt-3 font-[var(--font-display)] text-4xl font-extrabold leading-[1.2] sm:text-5xl sm:leading-[1.15]">
+          {cat.name}
+        </h1>
+        <p className="mt-2 text-sm text-black/50">
+          รวมข่าว บทความ และเรื่องราวทั้งหมดในหมวด {cat.name}
+        </p>
       </div>
 
       {/* Category chips */}
@@ -104,11 +93,13 @@ export default async function CategoryPage({
             <Link
               key={c.id}
               href={`/category/${c.slug}`}
-              className={`inline-flex items-center gap-1 rounded-full border-2 border-black px-3 py-1 text-xs font-black uppercase shadow-[3px_3px_0_0_#121212] ${
-                active ? `${c.color} ${c.text}` : "bg-white text-black"
+              className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-opacity hover:opacity-85 ${
+                active
+                  ? `${c.color} ${c.text}`
+                  : "bg-[#f0f0f0] text-black/60"
               }`}
             >
-              <span>{c.emoji}</span> {c.name}
+              {c.name}
             </Link>
           );
         })}
@@ -121,12 +112,11 @@ export default async function CategoryPage({
       )}
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {(page === 1 ? rest : posts).map((p, i) => (
+        {(page === 1 ? rest : posts).map((p) => (
           <ArticleCard
             key={p.id}
             post={p}
             variant="compact"
-            rotate={i % 2 === 0 ? -0.3 : 0.3}
           />
         ))}
       </div>
@@ -139,10 +129,10 @@ export default async function CategoryPage({
               href={`/category/${slug}?page=${page - 1}`}
               className="btn-chunk text-xs"
             >
-              ← ก่อนหน้า
+              &larr; ก่อนหน้า
             </Link>
           )}
-          <span className="rounded-full border-2 border-black bg-white px-4 py-2 text-xs font-black shadow-[3px_3px_0_0_#121212]">
+          <span className="rounded-full border border-[#d0d0d0] bg-white px-4 py-2 text-xs font-bold text-black/60">
             {page} / {totalPages}
           </span>
           {page < totalPages && page < 50 && (
@@ -150,7 +140,7 @@ export default async function CategoryPage({
               href={`/category/${slug}?page=${page + 1}`}
               className="btn-chunk text-xs"
             >
-              ถัดไป →
+              ถัดไป &rarr;
             </Link>
           )}
         </nav>

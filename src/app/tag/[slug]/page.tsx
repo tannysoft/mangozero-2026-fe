@@ -33,30 +33,29 @@ export default async function TagPage({
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-      <div className="card-chunk mb-10 bg-[#ffd60a] p-6 sm:p-10">
-        <div className="inline-flex rotate-[-2deg] items-center gap-1 rounded-full border-2 border-black bg-[#ff2d87] px-3 py-1 text-[11px] font-black uppercase text-white shadow-[3px_3px_0_0_#121212]">
-          🏷️ แท็ก
+      <div className="mb-10">
+        <div className="inline-flex items-center rounded-md bg-[#eba121] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          แท็ก
         </div>
-        <h1 className="mt-3 font-[var(--font-display)] text-4xl font-black sm:text-6xl">
+        <h1 className="mt-3 font-[var(--font-display)] text-4xl font-extrabold sm:text-5xl">
           #{tag.name}
         </h1>
-        <p className="mt-2 text-sm font-bold text-black/70">
+        <p className="mt-2 text-sm text-black/50">
           {tag.count} บทความ
         </p>
       </div>
 
       {posts.length === 0 ? (
-        <p className="text-center text-lg font-bold text-black/60">
+        <p className="text-center text-lg font-bold text-black/50">
           ยังไม่มีบทความในแท็กนี้
         </p>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((p, i) => (
+          {posts.map((p) => (
             <ArticleCard
               key={p.id}
               post={p}
               variant="compact"
-              rotate={i % 2 === 0 ? -0.3 : 0.3}
             />
           ))}
         </div>

@@ -11,50 +11,43 @@ import { NAV_CATEGORIES, findNavById } from "@/lib/categories";
 import { ArticleCard } from "@/components/ArticleCard";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Marquee } from "@/components/Marquee";
+import { HeroSlider } from "@/components/HeroSlider";
 
 export const revalidate = 300;
 
-// A compact curated set of the most-loved verticals we want to feature
-// on the home page under their own headings, in visual order.
 const FEATURED_SECTIONS: Array<{
   slug: string;
   title: string;
-  emoji: string;
   color: string;
   label: string;
 }> = [
   {
     slug: "k-pop",
-    title: "K-POP ซ่ามาก ใครเฟนใครได้เวลาปรบมือ",
-    emoji: "💜",
-    color: "bg-[#ff6bd6]",
-    label: "K-POP ZONE",
+    title: "K-POP อัปเดตไอดอลที่คุณตามอยู่",
+    color: "bg-[#c254a5]",
+    label: "K-POP",
   },
   {
     slug: "series",
-    title: "ซีรีส์ & หนัง ห้ามพลาดคืนนี้",
-    emoji: "📺",
-    color: "bg-[#00d4ff]",
-    label: "BINGE LIST",
+    title: "ซีรีส์ & ภาพยนตร์แนะนำ",
+    color: "bg-[#1a9fc7]",
+    label: "SERIES",
   },
   {
     slug: "social",
-    title: "เทรนด์โซเชียลเดือดๆ ที่กำลังไวรัล",
-    emoji: "🔥",
-    color: "bg-[#ff5e3a]",
-    label: "NOW TRENDING",
+    title: "เทรนด์โซเชียลที่กำลังพูดถึง",
+    color: "bg-[#d14832]",
+    label: "TRENDING",
   },
   {
     slug: "lifestyle",
-    title: "ไลฟ์สไตล์วัยรุ่นต้องจด",
-    emoji: "✨",
-    color: "bg-[#7cf3a7]",
-    label: "VIBE CHECK",
+    title: "ไลฟ์สไตล์ที่น่าจับตา",
+    color: "bg-[#2eb872]",
+    label: "LIFESTYLE",
   },
 ];
 
 export default async function HomePage() {
-  // Fire off all data fetches in parallel to keep the home TTFB snappy.
   const latestP = getPosts({ perPage: 13 });
   const kpopP = getPosts({ perPage: 6, categories: 659 });
   const seriesP = getPosts({ perPage: 6, categories: 191 });
@@ -76,9 +69,8 @@ export default async function HomePage() {
       gameP,
     ]);
 
-  // Split "latest" into the hero bento and a rail below it.
-  const hero = latest[0];
-  const heroSide = latest.slice(1, 5);
+  const heroSlides = latest.slice(0, 5);
+  const heroSide = latest.slice(5, 9);
   const latestRest = latest.slice(5, 13);
 
   const sectionsMap: Record<string, typeof latest> = {
@@ -92,20 +84,20 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ============ TICKER / BREAKING ============ */}
-      <div className="border-b-2 border-black bg-[#121212]">
-        <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-4 py-3 sm:px-6">
-          <span className="rounded-full bg-[#ff2d87] px-3 py-1 text-[11px] font-black uppercase text-white shadow-[2px_2px_0_0_#ffd60a]">
-            ● เทรนด์ตอนนี้
+      {/* ============ TICKER ============ */}
+      <div className="border-b border-[#e0e0e0] bg-[#121212]">
+        <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-4 py-2.5 sm:px-6">
+          <span className="rounded-md bg-[#e8265a] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+            Now
           </span>
           <Marquee className="flex-1">
             {marqueeItems.map((p) => (
               <Link
                 key={p.id}
                 href={localizeLink(p.link)}
-                className="text-sm font-bold text-white/90 hover:text-[#ffd60a]"
+                className="text-sm font-medium text-white/80 hover:text-white"
               >
-                <span className="mr-2 text-[#ffd60a]">★</span>
+                <span className="mr-2 text-white/30">|</span>
                 {decodeEntities(p.title.rendered)}
               </Link>
             ))}
@@ -113,47 +105,36 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ============ HERO — BENTO GRID ============ */}
+      {/* ============ HERO ============ */}
       <section className="mx-auto max-w-[1280px] px-4 pb-4 pt-8 sm:px-6 sm:pt-12">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="inline-flex rotate-[-2deg] items-center gap-2 rounded-full border-2 border-black bg-[#ffd60a] px-3 py-1 text-xs font-black uppercase shadow-[3px_3px_0_0_#121212]">
-              🥭 MANGO ZERO DAILY DROP
-            </div>
-            <h1 className="mt-3 font-[var(--font-display)] text-4xl font-black leading-[1.35] sm:text-5xl sm:leading-[1.3] md:text-6xl md:leading-[1.25]">
-              ข่าวที่{" "}
-              <span className="inline-block rounded-xl bg-[#ff2d87] px-3 py-1 text-white shadow-[4px_4px_0_0_#121212]">
-                สนุก
-              </span>
-              <br />
-              กว่าคอมเมนต์ใต้โพสต์
-            </h1>
-            <p className="mt-3 max-w-xl text-base font-medium text-black/65">
-              Thai POP • K-POP • J-POP • ซีรีส์ • หนัง • โซเชียล • เทรนด์.
-              เสิร์ฟตรงจากเตาสำหรับ Gen Y & Gen Z
-            </p>
-          </div>
-          <Link href="/category/entertainment" className="btn-chunk">
-            ✨ เริ่มมันส์ตรงนี้
-          </Link>
-        </div>
 
-        {hero && (
+        {heroSlides.length > 0 && (
           <div className="grid gap-4 lg:grid-cols-12 lg:items-stretch">
-            {/* big hero card */}
             <div className="lg:col-span-8">
-              <HeroBigCard post={hero} />
+              <HeroSlider
+                slides={heroSlides.map((p) => {
+                  const img = featuredImage(p);
+                  const cats = postCategories(p);
+                  return {
+                    id: p.id,
+                    href: localizeLink(p.link),
+                    title: decodeEntities(p.title.rendered),
+                    excerpt: stripHtml(p.excerpt.rendered, 160),
+                    category: cats[0]?.name,
+                    img: img ? { src: img.src, srcSet: img.srcSet } : undefined,
+                  };
+                })}
+              />
             </div>
 
-            {/* side rail: 4 mini cards in compact list style */}
-            <div className="card-chunk lg:col-span-4 flex flex-col divide-y-2 divide-black/10 overflow-hidden">
-              <div className="flex items-center justify-between bg-[#121212] px-4 py-3 text-[#ffd60a]">
-                <span className="inline-flex items-center gap-1 text-xs font-black uppercase">
-                  ⚡ ห้ามพลาด
+            <div className="card-chunk lg:col-span-4 flex flex-col divide-y divide-[#e8e8e8] overflow-hidden">
+              <div className="flex items-center justify-between bg-[#121212] px-4 py-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-white">
+                  ห้ามพลาด
                 </span>
                 <Link
                   href="/category/entertainment"
-                  className="text-[10px] font-bold uppercase text-white/70 hover:text-[#ffd60a]"
+                  className="text-[10px] font-medium uppercase text-white/50 hover:text-white"
                 >
                   ดูทั้งหมด →
                 </Link>
@@ -166,47 +147,37 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* ============ CATEGORY STICKERS ============ */}
+      {/* ============ CATEGORIES ============ */}
       <section className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
         <div className="card-chunk p-5 sm:p-6">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
-            <h2 className="text-xl font-black uppercase">เลือกหมวดที่ใช่</h2>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {NAV_CATEGORIES.map((c, i) => (
+          <h2 className="mb-4 text-lg font-extrabold">เลือกหมวดที่สนใจ</h2>
+          <div className="flex flex-wrap gap-2">
+            {NAV_CATEGORIES.map((c) => (
               <Link
                 key={c.id}
                 href={`/category/${c.slug}`}
-                className={`${c.color} ${c.text} inline-flex items-center gap-2 rounded-2xl border-2 border-black px-4 py-2 text-sm font-black uppercase shadow-[4px_4px_0_0_#121212] transition-transform hover:translate-y-[-2px]`}
-                style={{ transform: `rotate(${(i % 5) - 2}deg)` }}
+                className={`${c.color} ${c.text} inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition-opacity hover:opacity-85`}
               >
-                <span className="text-lg">{c.emoji}</span> {c.name}
+                {c.name}
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============ LATEST RAIL ============ */}
+      {/* ============ LATEST ============ */}
       <section className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6">
         <SectionHeading
-          emoji="⚡"
-          label="FRESH DROP"
+          label="LATEST"
           title="ข่าวล่าสุด"
-          color="bg-[#ffd60a]"
+          color="bg-[#121212]"
           href="/category/entertainment"
         >
-          อัปเดตสด หมาดๆ ร้อนๆ จากทุกหมวด
+          อัปเดตสดจากทุกหมวด
         </SectionHeading>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {latestRest.map((p, i) => (
-            <ArticleCard
-              key={p.id}
-              post={p}
-              variant="compact"
-              rotate={i % 2 === 0 ? -0.4 : 0.4}
-            />
+          {latestRest.map((p) => (
+            <ArticleCard key={p.id} post={p} variant="compact" />
           ))}
         </div>
       </section>
@@ -222,43 +193,30 @@ export default async function HomePage() {
             className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6"
           >
             <SectionHeading
-              emoji={s.emoji}
               label={s.label}
               title={s.title}
               color={s.color}
               href={`/category/${s.slug}`}
             />
 
-            {/* Alternating layouts per section for visual variety. */}
             {idx % 2 === 0 ? (
-              // "Hero + rail" — big feature card on the left, 4 compact
-              // cards in a 2x2 on the right. On desktop we stretch the
-              // feature card to match the rail height using an
-              // absolute-positioned image (otherwise aspect-ratio would
-              // force the feature taller than the rail).
               <div className="grid gap-5 lg:grid-cols-12 lg:items-stretch">
                 <div className="flex lg:col-span-7">
                   {feature && <FeatureStretchCard post={feature} />}
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:col-span-5">
-                  {rest.slice(0, 4).map((p, i) => (
-                    <ArticleCard
-                      key={p.id}
-                      post={p}
-                      variant="compact"
-                      rotate={i % 2 ? 0.4 : -0.4}
-                    />
+                  {rest.slice(0, 4).map((p) => (
+                    <ArticleCard key={p.id} post={p} variant="compact" />
                   ))}
                 </div>
               </div>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {posts.slice(0, 6).map((p, i) => (
+                {posts.slice(0, 6).map((p) => (
                   <ArticleCard
                     key={p.id}
                     post={p}
-                    variant={i === 0 ? "default" : "compact"}
-                    rotate={i % 3 === 0 ? -0.3 : 0.3}
+                    variant="compact"
                   />
                 ))}
               </div>
@@ -267,33 +225,29 @@ export default async function HomePage() {
         );
       })}
 
-      {/* ============ POP CULTURE TRIO: music / movies / game ============ */}
+      {/* ============ POP CULTURE TRIO ============ */}
       <section className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
         <SectionHeading
-          emoji="🎛️"
-          label="POP CULTURE"
-          title="เพลง · หนัง · เกม รวมมิตรเอนเตอร์"
-          color="bg-[#a066ff]"
+          label="CULTURE"
+          title="เพลง · หนัง · เกม"
+          color="bg-[#7c4dcc]"
         />
         <div className="grid gap-6 lg:grid-cols-3">
           <PopColumn
             label="เพลง"
-            emoji="🎧"
-            color="bg-[#a066ff] text-white"
+            color="bg-[#7c4dcc] text-white"
             href="/category/music"
             posts={music}
           />
           <PopColumn
             label="หนัง"
-            emoji="🎬"
-            color="bg-[#ffd60a] text-black"
+            color="bg-[#d4a017] text-white"
             href="/category/movies"
             posts={movies}
           />
           <PopColumn
             label="เกม"
-            emoji="🎮"
-            color="bg-[#39ff14] text-black"
+            color="bg-[#2d9e5a] text-white"
             href="/category/game"
             posts={game}
           />
@@ -302,36 +256,33 @@ export default async function HomePage() {
 
       {/* ============ CTA ============ */}
       <section className="mx-auto max-w-[1280px] px-4 py-12 sm:px-6">
-        <div className="card-chunk relative overflow-hidden p-8 sm:p-12">
-          <div className="spin-slow pointer-events-none absolute -right-10 -top-10 text-[180px] opacity-10">
-            🥭
-          </div>
-          <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex rotate-[-2deg] rounded-full border-2 border-black bg-[#ff2d87] px-3 py-1 text-[11px] font-black uppercase text-white shadow-[3px_3px_0_0_#121212]">
-              JOIN THE SQUAD
+        <div className="card-chunk p-8 sm:p-12">
+          <div className="max-w-2xl">
+            <div className="inline-flex rounded-md bg-[#e8265a] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+              Follow Us
             </div>
-            <h2 className="mt-3 text-3xl font-black leading-[1.3] sm:text-4xl sm:leading-[1.25]">
-              ไม่อยากพลาด content มันส์ๆ?
+            <h2 className="mt-3 text-3xl font-extrabold leading-[1.3] sm:text-4xl sm:leading-[1.25]">
+              ไม่อยากพลาดคอนเทนต์ดีๆ?
               <br />
-              ตามเราไปเลยทุกช่อง 🥭
+              ตามเราได้ทุกช่องทาง
             </h2>
-            <p className="mt-2 text-sm text-black/65">
-              กดติดตาม Facebook, Instagram, TikTok, X, YouTube เราอัปเดตให้วันละหลายรอบ
+            <p className="mt-2 text-sm text-black/50">
+              Facebook, Instagram, TikTok, X, YouTube — อัปเดตให้วันละหลายรอบ
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-2">
               {[
-                { label: "Facebook", href: "https://facebook.com/mangozero", color: "bg-[#4c6fff] text-white" },
-                { label: "Instagram", href: "https://instagram.com/mangozero", color: "bg-[#ff2d87] text-white" },
-                { label: "TikTok", href: "https://tiktok.com/@mangozero", color: "bg-black text-white" },
-                { label: "X / Twitter", href: "https://x.com/mangozero", color: "bg-[#ffd60a] text-black" },
-                { label: "YouTube", href: "https://youtube.com/@mangozero", color: "bg-[#ff5e3a] text-white" },
+                { label: "Facebook", href: "https://facebook.com/mangozero", color: "bg-[#3b5ccc]" },
+                { label: "Instagram", href: "https://instagram.com/mangozero", color: "bg-[#d63864]" },
+                { label: "TikTok", href: "https://tiktok.com/@mangozero", color: "bg-[#121212]" },
+                { label: "X", href: "https://x.com/mangozero", color: "bg-[#333]" },
+                { label: "YouTube", href: "https://youtube.com/@mangozero", color: "bg-[#d14832]" },
               ].map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   target="_blank"
                   rel="noopener"
-                  className={`${s.color} rounded-full border-2 border-black px-4 py-2 text-sm font-black uppercase shadow-[4px_4px_0_0_#121212] hover:translate-y-[-2px]`}
+                  className={`${s.color} rounded-lg px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-85`}
                 >
                   {s.label}
                 </a>
@@ -346,63 +297,6 @@ export default async function HomePage() {
 
 /* ------------ local sub-components ------------ */
 
-function HeroBigCard({
-  post,
-}: {
-  post: Awaited<ReturnType<typeof getPosts>>[number];
-}) {
-  const img = featuredImage(post);
-  const href = localizeLink(post.link);
-  const title = decodeEntities(post.title.rendered);
-  const cats = postCategories(post);
-  const primary = cats[0];
-  return (
-    <Link
-      href={href}
-      className="card-chunk group relative block h-full min-h-[420px] overflow-hidden sm:min-h-[520px]"
-    >
-      {img && (
-        // Full-bleed background image — absolute so it fills whatever
-        // height the grid row decides, instead of using aspect-ratio
-        // (which would leave empty whitespace).
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={img.src}
-          srcSet={img.srcSet}
-          sizes="(min-width: 1024px) 900px, 100vw"
-          alt={img.alt || title}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-        />
-      )}
-      {/* gradient + title overlay */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/40 to-black/0 p-5 sm:p-7">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full border-2 border-black bg-[#ffd60a] px-3 py-1 text-[11px] font-black uppercase text-black shadow-[2px_2px_0_0_#121212]">
-            ⭐ HERO OF THE DAY
-          </span>
-          {primary && (
-            <span className="inline-flex items-center rounded-full border-2 border-white bg-[#ff2d87] px-3 py-1 text-[11px] font-black uppercase text-white">
-              {primary.name}
-            </span>
-          )}
-        </div>
-        <h2 className="mt-3 line-clamp-3 text-2xl font-black leading-[1.3] text-white drop-shadow-[2px_2px_0_#000] sm:text-3xl sm:leading-[1.25] md:text-4xl">
-          {title}
-        </h2>
-        <p className="mt-2 line-clamp-2 text-sm font-medium text-white/80">
-          {stripHtml(post.excerpt.rendered, 160)}
-        </p>
-      </div>
-    </Link>
-  );
-}
-
-// Variant used in the idx=0 section layout. Behaves like a default card
-// on mobile (image-on-top + text-below, so the image isn't squished), but
-// on desktop collapses to a full-bleed image with an overlay caption so
-// the card can stretch to match the neighbouring 2x2 rail height.
 function FeatureStretchCard({
   post,
 }: {
@@ -416,17 +310,13 @@ function FeatureStretchCard({
   const nav = primary ? findNavById(primary.id) : undefined;
   const tint = nav
     ? { bg: nav.color, text: nav.text }
-    : { bg: "bg-[#ffd60a]", text: "text-black" };
+    : { bg: "bg-[#d4a017]", text: "text-white" };
   return (
     <Link
       href={href}
-      style={{ transform: "rotate(-0.3deg)" }}
       className="card-chunk group relative flex w-full flex-col overflow-hidden lg:block lg:h-full lg:min-h-[520px]"
     >
       {img && (
-        // On mobile: normal aspect-ratio image on top.
-        // On desktop: absolutely positioned full-bleed image so the card
-        // can stretch to whatever height the grid row needs.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={img.src}
@@ -434,22 +324,21 @@ function FeatureStretchCard({
           sizes="(min-width: 1024px) 720px, 100vw"
           alt={img.alt || title}
           decoding="async"
-          className="aspect-[16/10] w-full object-cover lg:absolute lg:inset-0 lg:aspect-auto lg:h-full lg:transition-transform lg:duration-500 lg:group-hover:scale-[1.03]"
+          className="aspect-[16/10] w-full object-cover lg:absolute lg:inset-0 lg:aspect-auto lg:h-full lg:transition-transform lg:duration-500 lg:group-hover:scale-[1.02]"
         />
       )}
-      {/* Caption — sits below image on mobile, overlays at the bottom on desktop. */}
-      <div className="flex flex-1 flex-col p-5 lg:absolute lg:inset-x-0 lg:bottom-0 lg:bg-gradient-to-t lg:from-black/90 lg:via-black/40 lg:to-transparent lg:p-7">
+      <div className="flex flex-1 flex-col p-5 lg:absolute lg:inset-x-0 lg:bottom-0 lg:bg-gradient-to-t lg:from-black/85 lg:via-black/30 lg:to-transparent lg:p-7">
         {primary && (
           <span
-            className={`inline-flex w-fit items-center rounded-full border-2 border-black ${tint.bg} ${tint.text} px-3 py-1 text-[11px] font-black uppercase shadow-[2px_2px_0_0_#121212] lg:border-white`}
+            className={`inline-flex w-fit items-center rounded-md ${tint.bg} ${tint.text} px-2.5 py-1 text-[11px] font-bold uppercase lg:bg-white/20 lg:text-white lg:backdrop-blur-sm`}
           >
             {primary.name}
           </span>
         )}
-        <h3 className="mt-3 line-clamp-3 text-2xl font-black leading-[1.3] group-hover:underline md:text-3xl md:leading-[1.25] lg:text-white lg:drop-shadow-[2px_2px_0_#000]">
+        <h3 className="mt-3 line-clamp-3 text-2xl font-extrabold leading-[1.3] group-hover:underline md:text-3xl md:leading-[1.25] lg:text-white">
           {title}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-black/60 lg:text-white/80">
+        <p className="mt-2 line-clamp-2 text-sm text-black/50 lg:text-white/70">
           {stripHtml(post.excerpt.rendered, 160)}
         </p>
       </div>
@@ -472,9 +361,9 @@ function HeroSideItem({
   return (
     <Link
       href={href}
-      className="group flex flex-1 items-center gap-3 bg-white p-3 transition-colors hover:bg-[#fff3cd]"
+      className="group flex flex-1 items-center gap-3 bg-white p-3 transition-colors hover:bg-[#f5f5f5]"
     >
-      <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full border-2 border-black bg-[#ffd60a] text-xs font-black">
+      <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-[#121212] text-[10px] font-bold text-white">
         {index}
       </span>
       {img && (
@@ -484,14 +373,14 @@ function HeroSideItem({
           srcSet={img.srcSet}
           sizes="96px"
           alt={img.alt || title}
-          className="h-16 w-20 flex-shrink-0 rounded-lg border-2 border-black object-cover"
+          className="h-16 w-20 flex-shrink-0 rounded-lg object-cover"
           loading="lazy"
           decoding="async"
         />
       )}
       <div className="min-w-0 flex-1">
         {primary && (
-          <span className="text-[10px] font-black uppercase text-[#ff2d87]">
+          <span className="text-[10px] font-bold uppercase text-[#d63864]">
             {primary.name}
           </span>
         )}
@@ -505,13 +394,11 @@ function HeroSideItem({
 
 function PopColumn({
   label,
-  emoji,
   color,
   href,
   posts,
 }: {
   label: string;
-  emoji: string;
   color: string;
   href: string;
   posts: Awaited<ReturnType<typeof getPosts>>;
@@ -520,12 +407,12 @@ function PopColumn({
     <div className="card-chunk p-4">
       <div className="mb-3 flex items-center justify-between">
         <span
-          className={`${color} inline-flex items-center gap-1 rounded-full border-2 border-black px-3 py-1 text-xs font-black uppercase shadow-[3px_3px_0_0_#121212]`}
+          className={`${color} inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold uppercase`}
         >
-          <span className="text-base">{emoji}</span> {label}
+          {label}
         </span>
-        <Link href={href} className="text-xs font-bold underline">
-          ดูทั้งหมด
+        <Link href={href} className="text-xs font-medium text-black/50 hover:text-black">
+          ดูทั้งหมด →
         </Link>
       </div>
       <ul className="space-y-3">
@@ -535,7 +422,7 @@ function PopColumn({
             <li key={p.id}>
               <Link
                 href={localizeLink(p.link)}
-                className="group flex items-center gap-3 rounded-xl border-2 border-transparent p-2 transition-colors hover:border-black hover:bg-[#fff8ea]"
+                className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-[#f5f5f5]"
               >
                 <div className="relative flex-shrink-0">
                   {thumb ? (
@@ -545,16 +432,16 @@ function PopColumn({
                       srcSet={thumb.srcSet}
                       sizes="96px"
                       alt={thumb.alt || decodeEntities(p.title.rendered)}
-                      className="h-[72px] w-[96px] rounded-lg border-2 border-black object-cover"
+                      className="h-[72px] w-[96px] rounded-lg object-cover"
                       loading="lazy"
                       decoding="async"
                     />
                   ) : (
-                    <div className="grid h-[72px] w-[96px] place-items-center rounded-lg border-2 border-black bg-[#ffd60a] text-2xl">
-                      🥭
+                    <div className="grid h-[72px] w-[96px] place-items-center rounded-lg bg-[#f0f0f0] text-sm text-black/30">
+                      —
                     </div>
                   )}
-                  <span className="absolute -left-2 -top-2 grid h-7 w-7 place-items-center rounded-full border-2 border-black bg-[#ffd60a] text-xs font-black shadow-[2px_2px_0_0_#121212]">
+                  <span className="absolute -left-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-[#121212] text-[10px] font-bold text-white">
                     {i + 1}
                   </span>
                 </div>
